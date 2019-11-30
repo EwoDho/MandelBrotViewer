@@ -24,7 +24,7 @@ public class MandelBrotViewerJPPF extends JFrame {
     private int width, height;
     private JPanel imagePanel;
     private JToolBar toolBar;
-    private JLabel statusLabel,calculationTimeLabel;
+    private JLabel statusLabel, calculationTimeLabel;
     private JButton renderButton, zoomOutButton;
     private JProgressBar progressBar;
     private JTextField superSamplesInput;
@@ -32,16 +32,16 @@ public class MandelBrotViewerJPPF extends JFrame {
 
     private BufferedImage image;
     private Stack<Rectangle2D.Double> viewPortStack;
-    private Rectangle2D.Double viewPort,origViewPort;
+    private Rectangle2D.Double viewPort, origViewPort;
 
     // mouse related stuff
     private boolean mouseDown;
-    private Point mouseDownPoint , mouseDragPoint;
+    private Point mouseDownPoint, mouseDragPoint;
 
     // algorithm related stuff
     int superSamples = 1;
     int maxIterations = 1000;
-    SwingWorker<Void,Void> swingWorker;
+    SwingWorker<Void, Void> swingWorker;
 
     private JPPFClient jppfClient;
 
@@ -70,28 +70,28 @@ public class MandelBrotViewerJPPF extends JFrame {
         fileMenu.add(exit);
         menuBar.add(fileMenu);
 
-        origViewPort = new Rectangle2D.Double(-2.5,-1,3.5,2);
-        viewPort = new Rectangle2D.Double(origViewPort.x,origViewPort.y,origViewPort.width,origViewPort.height);
+        origViewPort = new Rectangle2D.Double(-2.5, -1, 3.5, 2);
+        viewPort = new Rectangle2D.Double(origViewPort.x, origViewPort.y, origViewPort.width, origViewPort.height);
         viewPortStack = new Stack<>();
 
-        image = new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);
+        image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         imagePanel = new JPanel() {
 
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 Graphics2D g2 = (Graphics2D) g;
-                g2.drawImage(image,0,0,null);
+                g2.drawImage(image, 0, 0, null);
 
-                if(mouseDown) {
+                if (mouseDown) {
                     g2.setColor(Color.RED);
 
-                    int x = Math.min(mouseDownPoint.x,mouseDragPoint.x);
-                    int y = Math.min(mouseDownPoint.y,mouseDragPoint.y);
-                    int w = Math.abs(mouseDownPoint.x-mouseDragPoint.x);
-                    int h = Math.abs(mouseDownPoint.y-mouseDragPoint.y);
+                    int x = Math.min(mouseDownPoint.x, mouseDragPoint.x);
+                    int y = Math.min(mouseDownPoint.y, mouseDragPoint.y);
+                    int w = Math.abs(mouseDownPoint.x - mouseDragPoint.x);
+                    int h = Math.abs(mouseDownPoint.y - mouseDragPoint.y);
 
-                    g2.drawRect(x,y,w,h);
+                    g2.drawRect(x, y, w, h);
 
                 }
             }
@@ -103,7 +103,7 @@ public class MandelBrotViewerJPPF extends JFrame {
                 int x = e.getX();
                 int y = e.getY();
                 mouseDownPoint = new Point(x, y);
-                System.out.printf("Mouse down: %b %s\n",mouseDown, mouseDownPoint);
+                System.out.printf("Mouse down: %b %s\n", mouseDown, mouseDownPoint);
 
             }
 
@@ -111,61 +111,61 @@ public class MandelBrotViewerJPPF extends JFrame {
             @Override
             public void mouseMoved(MouseEvent e) {
 
-                double nx = 1.0*e.getX()/width;
-                double ny = 1.0*e.getY()/height;
+                double nx = 1.0 * e.getX() / width;
+                double ny = 1.0 * e.getY() / height;
 
 
-                double vx = viewPort.getMinX()+nx*viewPort.getWidth();
-                double vy = viewPort.getMaxY()-ny*viewPort.getHeight();
+                double vx = viewPort.getMinX() + nx * viewPort.getWidth();
+                double vy = viewPort.getMaxY() - ny * viewPort.getHeight();
 
-                statusLabel.setText(String.format("x: %f \t y: %f",vx,vy));
+                statusLabel.setText(String.format("x: %f \t y: %f", vx, vy));
             }
 
             @Override
             public void mouseDragged(MouseEvent e) {
-                if(mouseDown) {
+                if (mouseDown) {
                     int x = e.getX();
                     int y = e.getY();
                     mouseDragPoint = new Point(x, y);
                     imagePanel.repaint();
                 }
-                double nx = 1.0*e.getX()/width;
-                double ny = 1.0*e.getY()/height;
+                double nx = 1.0 * e.getX() / width;
+                double ny = 1.0 * e.getY() / height;
 
-                double vx = viewPort.getMinX()+nx*viewPort.getWidth();
-                double vy = viewPort.getMaxY()-ny*viewPort.getHeight();
+                double vx = viewPort.getMinX() + nx * viewPort.getWidth();
+                double vy = viewPort.getMaxY() - ny * viewPort.getHeight();
 
-                statusLabel.setText(String.format("x: %f \t y: %f",vx,vy));
+                statusLabel.setText(String.format("x: %f \t y: %f", vx, vy));
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
                 mouseDown = false;
                 mouseDragPoint = new Point(e.getX(), e.getY());
-                System.out.printf("Mouse up: %b %s\n",mouseDown, mouseDragPoint);
+                System.out.printf("Mouse up: %b %s\n", mouseDown, mouseDragPoint);
 
-                int x = Math.min(mouseDownPoint.x,mouseDragPoint.x);
-                int y = Math.min(mouseDownPoint.y,mouseDragPoint.y);
-                int w = Math.abs(mouseDownPoint.x-mouseDragPoint.x);
-                int h = Math.abs(mouseDownPoint.y-mouseDragPoint.y);
+                int x = Math.min(mouseDownPoint.x, mouseDragPoint.x);
+                int y = Math.min(mouseDownPoint.y, mouseDragPoint.y);
+                int w = Math.abs(mouseDownPoint.x - mouseDragPoint.x);
+                int h = Math.abs(mouseDownPoint.y - mouseDragPoint.y);
 
-                double nx = 1.0*x/width;
-                double ny = 1.0*y/height;
-                double nx2 = 1.0*(x+w)/width;
-                double ny2 = 1.0*(y+h)/height;
+                double nx = 1.0 * x / width;
+                double ny = 1.0 * y / height;
+                double nx2 = 1.0 * (x + w) / width;
+                double ny2 = 1.0 * (y + h) / height;
 
 
-                double vx = viewPort.getMinX()+nx*viewPort.getWidth();
-                double vy = viewPort.getMaxY()-ny*viewPort.getHeight();
+                double vx = viewPort.getMinX() + nx * viewPort.getWidth();
+                double vy = viewPort.getMaxY() - ny * viewPort.getHeight();
 
-                double vx2 = viewPort.getMinX()+nx2*viewPort.getWidth();
-                double vy2 = viewPort.getMaxY()-ny2*viewPort.getHeight();
+                double vx2 = viewPort.getMinX() + nx2 * viewPort.getWidth();
+                double vy2 = viewPort.getMaxY() - ny2 * viewPort.getHeight();
 
-                if(swingWorker != null)
+                if (swingWorker != null)
                     return;
 
                 viewPortStack.push(viewPort);
-                viewPort = new Rectangle2D.Double(Math.min(vx,vx2),Math.min(vy,vy2),Math.abs(vx2-vx),Math.abs(vy2-vy));
+                viewPort = new Rectangle2D.Double(Math.min(vx, vx2), Math.min(vy, vy2), Math.abs(vx2 - vx), Math.abs(vy2 - vy));
                 launchCalculation();
             }
 
@@ -180,12 +180,11 @@ public class MandelBrotViewerJPPF extends JFrame {
         createToolBar();
 
 
-
         statusLabel = new JLabel(String.format("x: \ty:"));
         this.setJMenuBar(menuBar);
-        this.getContentPane().add(toolBar,BorderLayout.PAGE_START);
+        this.getContentPane().add(toolBar, BorderLayout.PAGE_START);
         this.getContentPane().add(imagePanel, BorderLayout.CENTER);
-        this.getContentPane().add(statusLabel,BorderLayout.PAGE_END);
+        this.getContentPane().add(statusLabel, BorderLayout.PAGE_END);
     }
 
     private void createToolBar() {
@@ -206,7 +205,7 @@ public class MandelBrotViewerJPPF extends JFrame {
         zoomOutButton.setAction(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(!viewPortStack.empty()) {
+                if (!viewPortStack.empty()) {
                     viewPort = viewPortStack.pop();
                     launchCalculation();
                 }
@@ -235,7 +234,7 @@ public class MandelBrotViewerJPPF extends JFrame {
         toolBar.add(superSamplesInput);
         toolBar.addSeparator();
 
-        progressBar = new JProgressBar(JProgressBar.HORIZONTAL,0,100);
+        progressBar = new JProgressBar(JProgressBar.HORIZONTAL, 0, 100);
         progressBar.setEnabled(false);
         toolBar.add(progressBar);
         toolBar.addSeparator();
@@ -272,7 +271,7 @@ public class MandelBrotViewerJPPF extends JFrame {
             JOptionPane.showMessageDialog(this, "MaxIterations needs to be integer and 100 <=  and <= 5000");
             return;
         }
-        if(maxIterations < 100) {
+        if (maxIterations < 100) {
             maxIterationsInput.setText("100");
             maxIterations = 100;
         }
@@ -284,7 +283,7 @@ public class MandelBrotViewerJPPF extends JFrame {
 
         // launch swingworker
         final long startTime = System.currentTimeMillis();
-        if(swingWorker != null) {
+        if (swingWorker != null) {
             swingWorker.cancel(true);
         }
         swingWorker = new SwingWorker<Void, Void>() {
@@ -295,13 +294,13 @@ public class MandelBrotViewerJPPF extends JFrame {
 
                 // TODO - voeg taken toe aan de Job
                 // bvb.  job.add(MijnTaakObject)
-                try{
+                try {
                     for (int w = 0; w < width; w++) {
-                        setProgress((int)(100.0 * w / width));
+                        //setProgress((int) (100.0 * w / width));
 
-                            RunTask task = new RunTask(maxIterations,superSamples,viewPort.getMinX(), viewPort.getMaxY(), viewPort.getWidth(), viewPort.getHeight(), w, width, height,rnd);
-                            job.add(task);
-                            // submit de job
+                        RunTask task = new RunTask(maxIterations, superSamples, viewPort.getMinX(), viewPort.getMaxY(), viewPort.getWidth(), viewPort.getHeight(), w, width, height);
+                        job.add(task);
+                        // submit de job
 
 
                     }
@@ -309,40 +308,38 @@ public class MandelBrotViewerJPPF extends JFrame {
                     job = jppfClient.submitAsync(job);
                     // wachten op het resultaat
                     int lastExecutedTaskCount = 0;
-                    while(job.executedTaskCount() < job.getTaskCount()) {
-                        if(job.executedTaskCount() > lastExecutedTaskCount) {
-                            setProgress((int)(100.0 * job.executedTaskCount() / job.getTaskCount()));
+                    while (job.executedTaskCount() < job.getTaskCount()) {
+                        if (job.executedTaskCount() > lastExecutedTaskCount) {
+                            setProgress((int) (100.0 * job.executedTaskCount() / job.getTaskCount()));
 
-                            System.out.printf("Executed %d of %d tasks.\n",job.executedTaskCount(),job.getTaskCount());
+                            //System.out.printf("Executed %d of %d tasks.\n", job.executedTaskCount(), job.getTaskCount());
                             lastExecutedTaskCount = job.executedTaskCount();
                         }
-                        Thread.sleep(100);
+                        Thread.sleep(50);
                     }
 
                     System.out.println("Received all results");
-                }catch(Exception e){
-                    System.out.println(e);
-                }
 
+                    // Todo - verwerk het resultaat (stel de rgb waarden in op de 'image')
 
-                // Todo - verwerk het resultaat (stel de rgb waarden in op de 'image')
-
-                int w=0;
-                for (Task<?> allResult : job.getAllResults()) {
-                    RunTask rT = (RunTask) allResult;
-                        for(int i=0;i<height;i++){
-                            if(i==500){
-                               System.out.println( rT.getResult()[i][0]);                            }
-                            image.setRGB(w,i, new Color(rT.getResult()[i][0],rT.getResult()[i][1],rT.getResult()[i][2]).getRGB());
+                    int w = 0;
+                    for (Task<?> allResult : job.getAllResults()) {
+                        RunTask rT = (RunTask) allResult;
+                        for (int i = 0; i < height; i++) {
+                            //System.out.println(rT.getResult()[i][1]);
+                            image.setRGB(w, i, new Color(rT.getResult()[i][0], rT.getResult()[i][1], rT.getResult()[i][2]).getRGB());
                         }
 
                         w++;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
+
+
+
                 return null;
             }
-
-
-
 
 
             @Override
@@ -350,16 +347,15 @@ public class MandelBrotViewerJPPF extends JFrame {
                 setProgress(100);
                 imagePanel.repaint();
                 renderButton.setEnabled(true);
-                if(!viewPortStack.empty()) {
+                if (!viewPortStack.empty()) {
                     zoomOutButton.setEnabled(true);
                 }
                 progressBar.setEnabled(false);
 
                 long endTime = System.currentTimeMillis();
-                calculationTimeLabel.setText(String.format("\tLast calculation time:\t%d ms",endTime-startTime));
+                calculationTimeLabel.setText(String.format("\tLast calculation time:\t%d ms", endTime - startTime));
 
             }
-
 
 
         };
@@ -370,11 +366,11 @@ public class MandelBrotViewerJPPF extends JFrame {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 if (evt.getPropertyName().equals("progress")) {
-                    progressBar.setValue((Integer)evt.getNewValue());
+                    progressBar.setValue((Integer) evt.getNewValue());
 
                 }
 
-                if(!evt.getOldValue().equals(evt.getNewValue())) {
+                if (!evt.getOldValue().equals(evt.getNewValue())) {
                     imagePanel.repaint();
                 }
             }
@@ -386,9 +382,9 @@ public class MandelBrotViewerJPPF extends JFrame {
 
     private void clearImage() {
 
-        for(int w = 0; w<width; w++) {
-            for(int h = 0; h<height; h++) {
-                image.setRGB(w,h,0xffffffff);
+        for (int w = 0; w < width; w++) {
+            for (int h = 0; h < height; h++) {
+                image.setRGB(w, h, 0xffffffff);
             }
         }
     }
@@ -410,7 +406,7 @@ public class MandelBrotViewerJPPF extends JFrame {
                     e.printStackTrace();
                 }
 
-                MandelBrotViewerJPPF viewer = new MandelBrotViewerJPPF(1024,768);
+                MandelBrotViewerJPPF viewer = new MandelBrotViewerJPPF(1024, 768);
                 viewer.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 viewer.setVisible(true);
                 viewer.pack();

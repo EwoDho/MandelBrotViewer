@@ -8,11 +8,11 @@ import java.awt.*;
 import java.util.Random;
 
 public class RunTask extends AbstractTask<float[][]> {
-    public int maxIterations, superSamples, w, h, width, height;
+    public int maxIterations, superSamples, w, width, height;
     public double getMinX, getMaxY, getWidth, getHeight;
     public Random rnd;
 
-    public RunTask(int maxIterations, int superSamples, double getMinX, double getMaxY, double getWidth, double getHeight,  int w,int width, int height,Random rnd) {
+    public RunTask(int maxIterations, int superSamples, double getMinX, double getMaxY, double getWidth, double getHeight, int w, int width, int height) {
         this.maxIterations = maxIterations;
         this.superSamples = superSamples;
         this.getMinX = getMinX;
@@ -20,20 +20,21 @@ public class RunTask extends AbstractTask<float[][]> {
         this.getWidth = getWidth;
         this.getHeight = getHeight;
         this.w = w;
-        this.h = h;
         this.height = height;
         this.width = width;
-        this.rnd=rnd;
+        this.rnd = new Random();
 
     }
 
     @Override
     public void run() {
         super.run();
-        float r,g,b;
-        float[][] arrh=new float[height][3];
-        for(int i=0;i<height;i++) {
-            r = 0; g = 0; b = 0;
+        float r, g, b;
+        float[][] arrh = new float[height][3];
+        for (int h = 0; h < height; h++) {
+            r = 0;
+            g = 0;
+            b = 0;
             for (int sample = 0; sample < superSamples; sample++) {
 
                 // escape time algorithm
@@ -74,14 +75,9 @@ public class RunTask extends AbstractTask<float[][]> {
 
                 }
             }
-
-
-
-
-
-            arrh[h][0] =  (r / superSamples);
-            arrh[h][1]= (g / superSamples);
-            arrh[h][2]=  (b / superSamples);
+            arrh[h][0] = (r / superSamples);
+            arrh[h][1] = (g / superSamples);
+            arrh[h][2] = (b / superSamples);
         }
         setResult(arrh);
     }
